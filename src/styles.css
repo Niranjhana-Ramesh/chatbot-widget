@@ -1,7 +1,5 @@
 .chatbot-container {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
+  position: relative;
   width: 350px;
   height: 500px;
   background: white;
@@ -12,11 +10,6 @@
   overflow: hidden;
   font-family: Arial, sans-serif;
   z-index: 10000;
-}
-
-.chatbot-container.bottom-left {
-  left: 20px;
-  right: auto;
 }
 
 .chatbot-container.minimized {
@@ -30,7 +23,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: var(--primary-color, #007bff);
+  background-color: #007bff; /* fixed blue color */
 }
 
 .chatbot-header button {
