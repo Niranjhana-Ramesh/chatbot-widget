@@ -3,7 +3,7 @@ import './styles.css';
 class ChatbotWidget extends HTMLElement {
   constructor() {
     super();
-    this.apiUrl = 'https://chatbot-backend-8kwr.onrender.com/query'; // fixed API URL
+    this.apiUrl = 'https://chatbot-backend-8kwr.onrender.com/query';
     this.attachShadow({ mode: 'open' });
   }
 
@@ -29,91 +29,12 @@ class ChatbotWidget extends HTMLElement {
       </div>
     `;
 
-    // Add styles
-    const style = document.createElement('style');
-    style.textContent = `
-      .chatbot-container {
-        position: relative;
-        width: 350px;
-        height: 500px;
-        background: white;
-        border-radius: 10px;
-        display: flex;
-        flex-direction: column;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        overflow: hidden;
-        font-family: Arial, sans-serif;
-        z-index: 10000;
-      }
-      .chatbot-container.minimized {
-        height: 40px;
-        width: 200px;
-      }
-      .chatbot-header {
-        color: #fff;
-        padding: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: #007bff;
-      }
-      .chatbot-header button {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 18px;
-        cursor: pointer;
-      }
-      .chatbot-body {
-        flex: 1;
-        padding: 10px;
-        overflow-y: auto;
-        background-color: #f7f7f7;
-      }
-      .chatbot-footer {
-        padding: 10px;
-        display: flex;
-        gap: 5px;
-        border-top: 1px solid #ddd;
-      }
-      .chatbot-footer input {
-        flex: 1;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-      }
-      .chatbot-footer button {
-        padding: 8px 12px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-      .message {
-        margin-bottom: 10px;
-        padding: 6px 10px;
-        border-radius: 6px;
-        max-width: 80%;
-        word-wrap: break-word;
-      }
-      .user-message {
-        background-color: #007bff;
-        color: white;
-        margin-left: auto;
-      }
-      .bot-message {
-        background-color: #e9ecef;
-        color: #333;
-      }
-      .status-message {
-        text-align: center;
-        color: #666;
-        font-style: italic;
-      }
-    `;
+    // Inject the extracted CSS into Shadow DOM
+    const cssLink = document.createElement('link');
+    cssLink.setAttribute('rel', 'stylesheet');
+    cssLink.setAttribute('href', 'https://chatbot-widget-drg.pages.dev/chatbot-widget.css');
+    this.shadowRoot.appendChild(cssLink);
 
-    this.shadowRoot.appendChild(style);
     this.shadowRoot.appendChild(container);
 
     this._container = container;
