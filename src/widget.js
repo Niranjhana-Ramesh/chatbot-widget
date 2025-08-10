@@ -3,7 +3,7 @@ import './styles.css';
 class ChatbotWidget extends HTMLElement {
   constructor() {
     super();
-    this.apiUrl = 'https://chatbot-backend-8kwr.onrender.com/query'; // fixed backend URL
+    this.apiUrl = 'https://chatbot-backend-8kwr.onrender.com/query'; // fixed backend
     this.attachShadow({ mode: 'open' });
   }
 
@@ -15,7 +15,7 @@ class ChatbotWidget extends HTMLElement {
 
   _render() {
     const container = document.createElement('div');
-    container.className = 'chatbot-container inline'; // inline layout based on placement
+    container.className = 'chatbot-container inline';
 
     container.innerHTML = `
       <div class="chatbot-header">
@@ -28,7 +28,6 @@ class ChatbotWidget extends HTMLElement {
         <button id="chatbot-submit">Send</button>
       </div>
     `;
-
     this.shadowRoot.appendChild(container);
 
     this._container = container;
