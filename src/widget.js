@@ -1,82 +1,60 @@
 import './styles.css';
 
-class ChatbotWidget {
-  constructor(config = {}) {
-    this.apiUrl = config.apiUrl || 'https://chatbot-backend-8kwr.onrender.com/query';
-    this.primaryColor = config.primaryColor || '#007bff';
-    this.position = config.position || 'bottom-right';
-    this.init();
+class ChatbotWidget extends HTMLElement {
+  constructor() {
+    super();
+    this.apiUrl = 'https://chatbot-backend-8kwr.onrender.com/query'; // fixed backend URL
+    this.attachShadow({ mode: 'open' });
   }
 
-  init() {
-    this.createUI();
-    this.attachEvents();
-    this.addMessage('Hi! I’m ready to chat with you 😊', 'status-message');
+  connectedCallback() {
+    this._render();
+    this._attachEvents();
+    this._addMessage('Hi! I’m ready to chat with you 😊', 'status-message');
   }
 
-  createUI() {
-    this.container = document.createElement('div');
-    this.container.className = `chatbot-container ${this.position}`;
-    this.container.style.setProperty('--primary-color', this.primaryColor);
+  _render() {
+    const container = document.createElement('div');
+    container.className = 'chatbot-container inline'; // inline layout based on placement
 
-    const header = document.createElement('div');
-    header.className = 'chatbot-header';
+    container.innerHTML = `
+      <div class="chatbot-header">
+        <span>Chatbot</span>
+        <button id="minimize-chat">—</button>
+      </div>
+      <div class="chatbot-body" id="chat-messages"></div>
+      <div class="chatbot-footer">
+        <input id="chatbot-query" placeholder="Type your message..." />
+        <button id="chatbot-submit">Send</button>
+      </div>
+    `;
 
-    const title = document.createElement('span');
-    title.textContent = 'Chatbot';
+    this.shadowRoot.appendChild(container);
 
-    const minimizeBtn = document.createElement('button');
-    minimizeBtn.id = 'minimize-chat';
-    minimizeBtn.textContent = '—';
-    minimizeBtn.title = 'Minimize Chat';
-
-    header.appendChild(title);
-    header.appendChild(minimizeBtn);
-
-    this.messagesEl = document.createElement('div');
-    this.messagesEl.className = 'chatbot-body';
-    this.messagesEl.id = 'chat-messages';
-
-    const footer = document.createElement('div');
-    footer.className = 'chatbot-footer';
-
-    this.inputEl = document.createElement('input');
-    this.inputEl.id = 'chatbot-query';
-    this.inputEl.placeholder = 'Type your message...';
-
-    this.sendBtn = document.createElement('button');
-    this.sendBtn.id = 'chatbot-submit';
-    this.sendBtn.textContent = 'Send';
-
-    footer.appendChild(this.inputEl);
-    footer.appendChild(this.sendBtn);
-
-    this.container.appendChild(header);
-    this.container.appendChild(this.messagesEl);
-    this.container.appendChild(footer);
-
-    document.body.appendChild(this.container);
+    this._container = container;
+    this._messagesEl = container.querySelector('#chat-messages');
+    this._inputEl = container.querySelector('#chatbot-query');
+    this._sendBtn = container.querySelector('#chatbot-submit');
   }
 
-  attachEvents() {
-    const minimizeBtn = this.container.querySelector('#minimize-chat');
-    minimizeBtn.addEventListener('click', () => {
-      this.container.classList.toggle('minimized');
-      const isMinimized = this.container.classList.contains('minimized');
-      minimizeBtn.textContent = isMinimized ? '▲' : '—';
-      minimizeBtn.title = isMinimized ? 'Maximize Chat' : 'Minimize Chat';
+  _attachEvents() {
+    this.shadowRoot.querySelector('#minimize-chat').addEventListener('click', () => {
+      this._container.classList.toggle('minimized');
+      const btn = this.shadowRoot.querySelector('#minimize-chat');
+      const minimized = this._container.classList.contains('minimized');
+      btn.textContent = minimized ? '▲' : '—';
+      btn.title = minimized ? 'Maximize Chat' : 'Minimize Chat';
     });
 
-    this.sendBtn.addEventListener('click', () => this.handleSend());
-    this.inputEl.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') this.handleSend();
+    this._sendBtn.addEventListener('click', () => this._handleSend());
+    this._inputEl.addEventListener('keypress', e => {
+      if (e.key === 'Enter') this._handleSend();
     });
   }
 
-  addMessage(text, type) {
+  _addMessage(text, type) {
     const messageDiv = document.createElement('div');
     messageDiv.classList.add('message', type);
-
     const pre = document.createElement('pre');
     pre.style.whiteSpace = 'pre-wrap';
     pre.style.wordWrap = 'break-word';
@@ -86,26 +64,26 @@ class ChatbotWidget {
     pre.style.fontSize = 'inherit';
     pre.style.lineHeight = '1.5';
     pre.textContent = text;
-
     messageDiv.appendChild(pre);
-    this.messagesEl.appendChild(messageDiv);
-    this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
+    this._messagesEl.appendChild(messageDiv);
+    this._messagesEl.scrollTop = this._messagesEl.scrollHeight;
     return pre;
   }
 
-  async handleSend() {
-    const query = this.inputEl.value.trim();
+  async _handleSend() {
+    const query = this._inputEl.value.trim();
     if (!query) return;
-    this.addMessage(query, 'user-message');
-    this.inputEl.value = '';
 
-    const botPre = this.addMessage('', 'bot-message');
+    this._addMessage(query, 'user-message');
+    this._inputEl.value = '';
+
+    const botPre = this._addMessage('', 'bot-message');
 
     try {
       const response = await fetch(this.apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query })
+        body: JSON.stringify({ query }),
       });
 
       if (!response.ok) throw new Error(`Server responded ${response.status}`);
@@ -119,7 +97,7 @@ class ChatbotWidget {
         if (done) break;
         botText += decoder.decode(value, { stream: true });
         botPre.textContent = botText;
-        this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
+        this._messagesEl.scrollTop = this._messagesEl.scrollHeight;
       }
     } catch (err) {
       botPre.textContent = `Error: ${err.message}`;
@@ -127,9 +105,4 @@ class ChatbotWidget {
   }
 }
 
-// Auto-initialize if config exists
-if (window.CHATBOT_CONFIG) {
-  new ChatbotWidget(window.CHATBOT_CONFIG);
-}
-
-window.ChatbotWidget = ChatbotWidget;
+customElements.define('chatbot-widget', ChatbotWidget);
